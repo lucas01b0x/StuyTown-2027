@@ -62,9 +62,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * main robot "loop," continuously checking for conditions that allow us to move to the next step.
  */
 
-@Autonomous(name="StarterBotAuto", group="StarterBot")
+@Autonomous(name="Team37244StuyTownAuto", group="StarterBot")
 //@Disabled
-public class StarterBotAuto extends OpMode
+public class Team37244StuyTownAuto extends OpMode
 {
     /*
      * These two variables are used to control the velocity of the launcher motor.

@@ -1,5 +1,3 @@
-package org.firstinspires.ftc.teamcode;
-
 /*   MIT License
  *   Copyright (c) [2026] [Base 10 Assets, LLC]
  *
@@ -21,6 +19,8 @@ package org.firstinspires.ftc.teamcode;
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *   SOFTWARE.
  */
+
+package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
@@ -75,7 +75,7 @@ public class Team37244StuyTownTeleop extends OpMode {
      */
     public final int LAUNCHER_TARGET_VELOCITY = 1250; //2678 RPM
     public final int LAUNCHER_MIN_VELOCITY = 1200; //2571 RPM
-    
+
 
     /*
      * These four variables store the power we need to apply to the motors. In other cases, we may
