@@ -64,8 +64,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Autonomous(name="Team37244StuyTownAuto", group="StarterBot")
 //@Disabled
-public class Team37244StuyTownAuto extends OpMode
-{
+public class Team37244StuyTownAuto extends OpMode {
     /*
      * These two variables are used to control the velocity of the launcher motor.
      * They are both in encoder ticks per second. The motors we use in the FIRST Tech Challenge
@@ -137,8 +136,11 @@ public class Team37244StuyTownAuto extends OpMode
      * loops within loops, and "waits."
      */
     private enum AutonomousState {
-        LAUNCH,
-        DRIVE,
+        FIRST_LAUNCH,
+        DRIVE_TO_GARDEN_INTAKE,
+        DRIVE_TO_OPPOSITE,
+        SECOND_LAUNCH,
+        PARK,
         COMPLETE
     }
 
@@ -161,7 +163,7 @@ public class Team37244StuyTownAuto extends OpMode
          * the state machine by moving to other enum members.
          * We do the same for our launcher state machine, setting it to IDLE before we use it later.
          */
-        autonomousState = AutonomousState.LAUNCH;
+        autonomousState = AutonomousState.FIRST_LAUNCH;
 
 
         /*
@@ -269,16 +271,34 @@ public class Team37244StuyTownAuto extends OpMode
          * we know our enum isn't reflecting a different state.
          */
         switch (autonomousState) {
-            case LAUNCH:
+            case FIRST_LAUNCH:
                 launch(true);
                 if(autoTimer.seconds() > 10){
                     launch(false);
                     intakePower = 0;
-                    autonomousState = AutonomousState.DRIVE;
+                    autonomousState = AutonomousState.DRIVE_TO_GARDEN_INTAKE;
                 }
                 break;
-            case DRIVE:
-                if(timedMecanumDrive(DRIVE_SPEED, 0, 0, 2)){
+            case DRIVE_TO_GARDEN_INTAKE:
+                if(timedMecanumDrive(0, 0.5, 0, 2)) {
+                    autonomousState = AutonomousState.DRIVE_TO_OPPOSITE;
+                }
+                break;
+            case DRIVE_TO_OPPOSITE:
+                if(timedMecanumDrive(0.5, 0, 180, 5)) {
+                    autonomousState = AutonomousState.SECOND_LAUNCH;
+                }
+                break;
+            case SECOND_LAUNCH:
+                launch(true);
+                if(autoTimer.seconds() > 10){
+                    launch(false);
+                    intakePower = 0;
+                    autonomousState = AutonomousState.PARK;
+                }
+                break;
+            case PARK:
+                if(timedMecanumDrive(0, 0.5, 0, 2)) {
                     autonomousState = AutonomousState.COMPLETE;
                 }
                 break;
