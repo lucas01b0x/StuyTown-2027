@@ -76,9 +76,8 @@ public class Team37244StuyTownAuto extends OpMode
      * in the launch() function to only run the windmill servo when the motor is spinning fast
      * enough to make a successful throw.
      */
-    public final int LAUNCHER_TARGET_VELOCITY = 1250;
-    public final int LAUNCHER_MIN_VELOCITY = 1200;
-
+    public final int LAUNCHER_TARGET_VELOCITY = 1165;
+    public final int LAUNCHER_MIN_VELOCITY = 1085;
     /*
      * Here we capture a few variables used in driving the robot. DRIVE_SPEED and ROTATE_SPEED
      * are from 0-1, with 1 being full speed. Encoder ticks per revolution is specific to the motor
@@ -95,6 +94,15 @@ public class Team37244StuyTownAuto extends OpMode
     final double TICKS_PER_MM = (ENCODER_TICKS_PER_REV / (WHEEL_DIAMETER_MM * Math.PI));
     final double TRACK_WIDTH_MM = 402;
 
+    /*
+     * These four variables store the power we need to apply to the motors. In other cases, we may
+     * choose to declare these variables inside the mecanumDrive() function, instead we declare them
+     * here so that we can access them in our main loop for telemetry.
+     */
+    double leftFrontPower;
+    double rightFrontPower;
+    double leftBackPower;
+    double rightBackPower;
 
     // Create a variable to set to the intake.
     double intakePower = 0;
@@ -290,12 +298,13 @@ public class Team37244StuyTownAuto extends OpMode
          * "copy-and-paste" that non-state machine autonomous routines fall into.
          *
          */
-        telemetry.addData("AutoState", autonomousState);
-        telemetry.addData("Motor Current Positions", "left (%d), right (%d)",
-                leftDrive.getCurrentPosition(), rightDrive.getCurrentPosition());
-        telemetry.addData("Motor Target Positions", "left (%d), right (%d)",
-                leftDrive.getTargetPosition(), rightDrive.getTargetPosition());
-        telemetry.update();
+        // TODO: Figure out telemetry for mechanum drive
+//        telemetry.addData("AutoState", autonomousState);
+//        telemetry.addData("Motor Current Positions", "left (%d), right (%d)",
+//                leftDrive.getCurrentPosition(), rightDrive.getCurrentPosition());
+//        telemetry.addData("Motor Target Positions", "left (%d), right (%d)",
+//                leftDrive.getTargetPosition(), rightDrive.getTargetPosition());
+//        telemetry.update();
     }
 
     /*
