@@ -73,10 +73,10 @@ public class Team37244StuyTownTeleop extends OpMode {
      * in the launch() function to only run the windmill servo when the motor is spinning fast
      * enough to make a successful throw.
      */
-    public final int LAUNCHER_TARGET_VELOCITY = 1250; //2678 RPM
-    public final int LAUNCHER_MIN_VELOCITY = 1200; //2571 RPM
 
-
+    public final int LAUNCHER_TARGET_VELOCITY = 1165;
+    public final int LAUNCHER_MIN_VELOCITY = 1085;
+    
     /*
      * These four variables store the power we need to apply to the motors. In other cases, we may
      * choose to declare these variables inside the mecanumDrive() function, instead we declare them
