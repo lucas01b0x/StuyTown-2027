@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -11,21 +12,21 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 // This is a simple auton where the bot shoots the preload and drives towards the loading zone
 
-@Autonomous(name = "StarterBotAuto", group = "StarterBot")
-public class StarterBotAuto extends LinearOpMode {
+@Autonomous(name = "Team37244StarterBotAuto", group = "StarterBot")
+public class Team37244StarterBotAuto extends LinearOpMode {
     // Launcher settings
     private static final double LAUNCHER_TARGET_VELOCITY = 1165; // 2496 RPM
     private static final double LAUNCHER_MIN_VELOCITY = 1085; // 2325 RPM
 
     // Autonomous timing
     private static final double AUTO_TIMEOUT = 29.0;
-    private static final double FEED_TIME = 0.5;
-
-    private static final double FORWARD_POWER = 0.3;
-    private static final double FORWARD_TIME = 2.0;
+    private static final double FEED_TIME = 4.0;
 
     private static final double STRAFE_POWER = 0.3;
-    private static final double STRAFE_TIME = 1.0;
+    private static final double STRAFE_TIME = 3.0;
+
+    private static final double FORWARD_POWER = -0.6;
+    private static final double FORWARD_TIME = 2.5;
 
     // Hardware
     private DcMotor leftFrontDrive;
@@ -37,8 +38,8 @@ public class StarterBotAuto extends LinearOpMode {
     private DcMotorEx launcher;
 
     private CRServo windmillServo;
-    private Servo leftIntakeServo;
-    private Servo rightIntakeServo;
+    private CRServo leftIntakeServo;
+    private CRServo rightIntakeServo;
 
     // Timers
     private final ElapsedTime autoTimer = new ElapsedTime();
@@ -67,8 +68,8 @@ public class StarterBotAuto extends LinearOpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
 
         windmillServo = hardwareMap.get(CRServo.class, "windmillServo");
-        leftIntakeServo = hardwareMap.get(Servo.class, "left_intake_servo");
-        rightIntakeServo = hardwareMap.get(Servo.class, "right_intake_servo");
+        leftIntakeServo = hardwareMap.get(CRServo.class, "left_intake_servo");
+        rightIntakeServo = hardwareMap.get(CRServo.class, "right_intake_servo");
 
         // Configure drive motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -87,8 +88,12 @@ public class StarterBotAuto extends LinearOpMode {
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(40, 0, 0, 12.5));
 
         // Configure servo directions
-        rightIntakeServo.setDirection(Servo.Direction.REVERSE);
-        windmillServo.setDirection(CRServo.Direction.REVERSE);
+        rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        windmillServo.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        leftIntakeServo.setPower(0);
+        rightIntakeServo.setPower(0);
+        windmillServo.setPower(0);
 
         // Ensure mechanisms start stopped
         stopAllMotorsAndMechanisms();
@@ -127,18 +132,31 @@ public class StarterBotAuto extends LinearOpMode {
                     break;
 
                 case FEED_PRELOAD:
-                    // Keep launcher running while feeding preload
-                    launcher.setVelocity(
-                            LAUNCHER_TARGET_VELOCITY);
+                    // Keep wheel at shooting speed
+                    launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+
+                    // Run indexer
                     windmillServo.setPower(1.0);
+
+                    // Run intake motor and both intake servos
+                    intake.setPower(0.5);
+                    leftIntakeServo.setPower(0.5);
+                    rightIntakeServo.setPower(0.5);
+
                     if (stateTimer.seconds() >= FEED_TIME) {
                         windmillServo.setPower(0);
                         intake.setPower(0);
+                        leftIntakeServo.setPower(0);
+                        rightIntakeServo.setPower(0);
                         launcher.setVelocity(0);
-
                         stateTimer.reset();
-                        currentState = AutoState.DRIVE_FORWARD;
+                        currentState = AutoState.LOADING_ZONE;
                     }
+                    break;
+
+                case LOADING_ZONE:
+                    boolean strafeFinished = timedMecanumDrive(0, STRAFE_POWER, 0, STRAFE_TIME);
+                    if (strafeFinished) currentState = AutoState.DRIVE_FORWARD;
                     break;
 
                 case DRIVE_FORWARD:
@@ -146,14 +164,8 @@ public class StarterBotAuto extends LinearOpMode {
                     boolean forwardFinished = timedMecanumDrive(FORWARD_POWER, 0, 0, FORWARD_TIME);
                     if (forwardFinished) {
                         stateTimer.reset();
-                        currentState = AutoState.LOADING_ZONE;
+                        currentState = AutoState.COMPLETE;
                     }
-                    break;
-
-                case LOADING_ZONE:
-                    // Strafe right
-                    boolean strafeFinished = timedMecanumDrive(0, STRAFE_POWER, 0, STRAFE_TIME);
-                    if (strafeFinished) currentState = AutoState.COMPLETE;
                     break;
 
                 case COMPLETE:
@@ -225,14 +237,10 @@ public class StarterBotAuto extends LinearOpMode {
 
     private void stopAllMotorsAndMechanisms() {
         stopDriveMotors();
-
         if (intake != null) intake.setPower(0);
         if (launcher != null) launcher.setVelocity(0);
         if (windmillServo != null) windmillServo.setPower(0);
-    }
-
-    @Override
-    public void stop() {
-        stopAllMotorsAndMechanisms();
+        if (leftIntakeServo != null) leftIntakeServo.setPower(0);
+        if (rightIntakeServo != null) rightIntakeServo.setPower(0);
     }
 }
