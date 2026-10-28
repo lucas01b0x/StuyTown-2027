@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Team37244StarterBotAuto extends LinearOpMode {
     // Launcher settings
     private static final double LAUNCHER_TARGET_VELOCITY = 1165; // 2496 RPM
-    private static final double LAUNCHER_MIN_VELOCITY = 1010; // 2164 RPM
+    private static final double LAUNCHER_MIN_VELOCITY = 1100; // 2357 RPM
 
     // Autonomous timing
     private static final double AUTO_TIMEOUT = 29.0;
