@@ -74,8 +74,8 @@ public class Team37244StuyTownTeleop extends OpMode {
      * enough to make a successful throw.
      */
 
-    public final int LAUNCHER_TARGET_VELOCITY = 1165;
-    public final int LAUNCHER_MIN_VELOCITY = 1085;
+    public final int LAUNCHER_TARGET_VELOCITY = 1165; //2496 RPM
+    public final int LAUNCHER_MIN_VELOCITY = 1085; // 2325 RPM
     
     /*
      * These four variables store the power we need to apply to the motors. In other cases, we may

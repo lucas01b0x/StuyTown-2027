@@ -75,8 +75,8 @@ public class Team37244StuyTownAuto extends OpMode {
      * in the launch() function to only run the windmill servo when the motor is spinning fast
      * enough to make a successful throw.
      */
-    public final int LAUNCHER_TARGET_VELOCITY = 1165;
-    public final int LAUNCHER_MIN_VELOCITY = 1085;
+    public final int LAUNCHER_TARGET_VELOCITY = 1165; //2496 RPM
+    public final int LAUNCHER_MIN_VELOCITY = 1085; // 2325 RPM
     /*
      * Here we capture a few variables used in driving the robot. DRIVE_SPEED and ROTATE_SPEED
      * are from 0-1, with 1 being full speed. Encoder ticks per revolution is specific to the motor
