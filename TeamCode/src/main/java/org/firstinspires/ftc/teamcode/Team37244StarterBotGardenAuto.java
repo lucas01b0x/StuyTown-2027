@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 // This is a simple auton where the bot shoots the preload and drives towards the loading zone
 
 @Autonomous(name = "Team37244StarterBotGardenAuto", group = "StarterBot")
-public class Team37244StarterBotAuto extends LinearOpMode {
+public class Team37244StarterBotGardenAuto extends LinearOpMode {
     // Launcher settings
     private static final double LAUNCHER_TARGET_VELOCITY = 1165; // 2496 RPM
     private static final double LAUNCHER_MIN_VELOCITY = 1085; // 2325 RPM
