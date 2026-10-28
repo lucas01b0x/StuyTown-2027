@@ -16,11 +16,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Team37244StarterBotAuto extends LinearOpMode {
     // Launcher settings
     private static final double LAUNCHER_TARGET_VELOCITY = 1165; // 2496 RPM
-    private static final double LAUNCHER_MIN_VELOCITY = 1085; // 2325 RPM
+    private static final double LAUNCHER_MIN_VELOCITY = 1010; // 2164 RPM
 
     // Autonomous timing
     private static final double AUTO_TIMEOUT = 29.0;
-    private static final double FEED_TIME = 4.0;
+    private static final double FEED_TIME = 5.0;
 
     private static final double STRAFE_POWER = 0.3;
     private static final double STRAFE_TIME = 3.0;
@@ -51,6 +51,7 @@ public class Team37244StarterBotAuto extends LinearOpMode {
         FEED_PRELOAD,
         DRIVE_FORWARD,
         LOADING_ZONE,
+        DRIVE_GARDEN,
         COMPLETE
     }
 
@@ -156,13 +157,25 @@ public class Team37244StarterBotAuto extends LinearOpMode {
 
                 case LOADING_ZONE:
                     boolean strafeFinished = timedMecanumDrive(0, STRAFE_POWER, 0, STRAFE_TIME);
-                    if (strafeFinished) currentState = AutoState.DRIVE_FORWARD;
+                    if (strafeFinished) {
+                        stateTimer.reset();
+                        currentState = AutoState.DRIVE_FORWARD;
+                    }
                     break;
 
                 case DRIVE_FORWARD:
                     // Drive forward
                     boolean forwardFinished = timedMecanumDrive(FORWARD_POWER, 0, 0, FORWARD_TIME);
                     if (forwardFinished) {
+                        stateTimer.reset();
+                        currentState = AutoState.DRIVE_GARDEN;
+                    }
+                    break;
+                    
+                case DRIVE_GARDEN:
+                    // Drive right
+                    boolean gardenDone = timedMecanumDrive(0, 0.3, 0, 0.5);
+                    if (gardenDone) {
                         stateTimer.reset();
                         currentState = AutoState.COMPLETE;
                     }
