@@ -216,7 +216,7 @@ public class Team37244StuyTownTeleop extends OpMode {
          * Note, moving the joystick forward on most gamepads results in a negative signal, so
          * we invert it before passing it to the function.
          */
-        mecanumDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, botHeading);
+        fieldCentricDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, botHeading);
 
         /*
          * Set the intake power variable to equal the right trigger, minus the left trigger.
@@ -260,17 +260,24 @@ public class Team37244StuyTownTeleop extends OpMode {
     public void stop() {
     }
 
-    void mecanumDrive(double x, double y, double rx, double botHeading) {
+    void fieldCentricDrive(double x, double y, double rx, double botHeading) {
+        // We rotate the left joystick vector <x, y> by botHeading
+        // Then we pass in this new rotated vector to robotCentricDrive,
+        // since the vector now points in the direction from the robot's point of view.
         rx = -rx; // Strafing is inverted for some reason
         double rotX = x * Math.cos(botHeading) - y * Math.sin(botHeading);
         double rotY = x * Math.sin(botHeading) + y * Math.cos(botHeading);
 
         rotX = rotX * 1.1;  // Counteract imperfect strafing
 
-        leftFrontPower = rotX + rotY + rx;
-        rightFrontPower = rotX - rotY - rx;
-        leftBackPower = rotX - rotY + rx;
-        rightBackPower = rotX + rotY - rx;
+        robotCentricDrive(rotX, rotY, rx);
+    }
+
+    void robotCentricDrive(double forward, double strafe, double rotate) {
+        leftFrontPower = forward + strafe + rotate;
+        rightFrontPower = forward - strafe - rotate;
+        leftBackPower = forward - strafe + rotate;
+        rightBackPower = forward + strafe - rotate;
 
         double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
         max = Math.max(max, Math.abs(leftBackPower));
@@ -291,7 +298,6 @@ public class Team37244StuyTownTeleop extends OpMode {
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
     }
-
     void launch() {
         /*
          * Calling gamepad1.right_bumper returns a boolean which will be true if the bumper is
