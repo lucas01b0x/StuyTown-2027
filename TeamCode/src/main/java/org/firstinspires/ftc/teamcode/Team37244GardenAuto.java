@@ -22,10 +22,10 @@ public class Team37244GardenAuto extends LinearOpMode {
     private static final double AUTO_TIMEOUT_SECONDS = 29.0;
 
     private static final double STRAFE_POWER = 0.3;
-    private static final double STRAFE_TIME_SECONDS = 3.0;
+    private static final double STRAFE_TIME_SECONDS = 1.0;
 
     private static final double FORWARD_POWER = -0.6;
-    private static final double FORWARD_TIME_SECONDS = 2.5;
+    private static final double FORWARD_TIME_SECONDS = 1;
 
     // Hardware
     private DcMotor leftFrontDrive;
@@ -120,12 +120,12 @@ public class Team37244GardenAuto extends LinearOpMode {
                     if (stateTimer.seconds() >= FORWARD_TIME_SECONDS) {
                         stopDriveMotors();
                         stateTimer.reset();
-                        currentState = AutoState.COMPLETE;
+                        currentState = AutoState.LOADING_ZONE_PARK;
                     }
                     break;
 
                 case LOADING_ZONE_PARK:
-                    fieldCentricDrive(0, 1, 0, botHeading);
+                    fieldCentricDrive(1, -0.3, 0, botHeading);
                     if (stateTimer.seconds() >= FORWARD_TIME_SECONDS) {
                         stopDriveMotors();
                         stateTimer.reset();
