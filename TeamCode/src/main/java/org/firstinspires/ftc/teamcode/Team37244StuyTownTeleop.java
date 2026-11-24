@@ -158,9 +158,7 @@ public class Team37244StuyTownTeleop extends OpMode {
         runIntake(gamepad1.right_bumper);
         runPlow(gamepad1.circle, gamepad1.triangle);
 
-        /*
-         * Show motor powers on the Driver Station via telemetry.
-         */
+        // === DRIVER STATION TELEMETRY INFO ===
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftFrontPower, rightFrontPower);
         telemetry.addData("Triggers", "left (%.2f, right (%.2f)",gamepad1.left_trigger, gamepad1.right_trigger);
     }
@@ -221,6 +219,16 @@ public class Team37244StuyTownTeleop extends OpMode {
                 break;
         }
     }
+
+    /**
+     * Handles all Field Centric Drive logic.
+     * Rotates joystick vector (x, y) by robot heading and passes it on to robotCentricDrive().
+     * Therefore,this method depends on robotCentricDrive()
+     * @param x left joystick x to control translation
+     * @param y left joystick y to control translation
+     * @param rx right joystick x to control rotation
+     * @param botHeading current heading of the robot (should be from IMU)
+     */
     void fieldCentricDrive(double x, double y, double rx, double botHeading) {
         // We rotate the left joystick vector <x, y> by botHeading
         // Then we pass in this new rotated vector to robotCentricDrive,
@@ -234,6 +242,12 @@ public class Team37244StuyTownTeleop extends OpMode {
         robotCentricDrive(rotX, rotY, rx);
     }
 
+    /**
+     * Handles robot centric drive
+     * @param forward forward power
+     * @param strafe strafe (left and right) power
+     * @param rotate rotational power
+     */
     void robotCentricDrive(double forward, double strafe, double rotate) {
         leftFrontPower = forward + strafe + rotate;
         rightFrontPower = forward - strafe - rotate;
