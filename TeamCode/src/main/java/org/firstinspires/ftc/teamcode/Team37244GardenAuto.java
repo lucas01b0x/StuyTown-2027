@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 // This is a simple auton where the bot shoots the preload and drives towards the loading zone
 
-@Autonomous(name = "Team37244GardenAuto", group = "StarterBot")
+@Autonomous(name = "Team37244GardenAuto", group = "Testing")
 public class Team37244GardenAuto extends LinearOpMode {
     // Autonomous timing
     private static final double AUTO_TIMEOUT_SECONDS = 29.0;

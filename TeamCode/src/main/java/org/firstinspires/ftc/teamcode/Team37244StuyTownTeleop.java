@@ -52,10 +52,17 @@ public class Team37244StuyTownTeleop extends OpMode {
         STOWING,
         DEPLOYING,
         STOW_HOLD,
-        DEPLOY_HOLD
+        DEPLOY_HOLD,
+        STOP
     }
-
     private PlowState currentPlowState = PlowState.STOWING;
+
+    private enum IntakeState {
+        INTAKING,
+        OUTTAKING,
+        STOP
+    }
+    private IntakeState currentIntakeState = IntakeState.INTAKING;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -146,7 +153,7 @@ public class Team37244StuyTownTeleop extends OpMode {
     public void loop() {
         // === DRIVING ===
         // Reset imu Yaw if collision or disconnection causes imu error
-        if (gamepad1.options) {
+        if (gamepad1.share) {
             imu.resetYaw();
         }
 
@@ -155,8 +162,8 @@ public class Team37244StuyTownTeleop extends OpMode {
         fieldCentricDrive(-gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, botHeading);
 
         // === OTHER ===
-        runIntake(gamepad1.right_bumper);
-        runPlow(gamepad1.circle, gamepad1.triangle);
+        runIntake(gamepad1.right_bumper, gamepad1.right_trigger_pressed);
+        runPlow(gamepad1.triangle, gamepad1.x);
 
         // === DRIVER STATION TELEMETRY INFO ===
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftFrontPower, rightFrontPower);
@@ -174,9 +181,27 @@ public class Team37244StuyTownTeleop extends OpMode {
      * Handles all intake logic
      * @param intakeButtonPressed if button to intake is pressed
      */
-    void runIntake(boolean intakeButtonPressed) {
+    void runIntake(boolean intakeButtonPressed, boolean outtakeButtonPressed) {
+        // Change State
         if (intakeButtonPressed) {
-            intake.setPower(INTAKE_POWER);
+            currentIntakeState = IntakeState.INTAKING;
+        } else if (outtakeButtonPressed) {
+            currentIntakeState = IntakeState.OUTTAKING;
+        } else {
+            currentIntakeState = IntakeState.STOP;
+        }
+
+        // Set Power
+        switch (currentIntakeState) {
+            case INTAKING:
+                intake.setPower(INTAKE_POWER);
+                break;
+            case OUTTAKING:
+                intake.setPower(OUTTAKE_POWER);
+                break;
+            case STOP:
+                intake.setPower(0);
+                break;
         }
     }
 
