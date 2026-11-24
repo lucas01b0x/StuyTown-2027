@@ -248,14 +248,20 @@ public class Team37244Robot {
     }
 
     /**
-     * Sets the power of motors and mechanisms to 0.
+     * Sets the power of all drive motors to 0.
      */
-    public void stopAllMotorsAndMechanisms() {
-        // Drivetrain
+    public void stopDriveMotors() {
         leftFrontDrive.setPower(0);
         rightFrontDrive.setPower(0);
         leftBackDrive.setPower(0);
         rightBackDrive.setPower(0);
+    }
+
+    /**
+     * Sets the power of motors and mechanisms to 0.
+     */
+    public void stopAllMotorsAndMechanisms() {
+        stopDriveMotors();
 
         // Other
         intake.setPower(0);
