@@ -14,14 +14,16 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name = "Team37244StuyTownTeleop", group = "Testing")
-//@Disabled
 public class Team37244StuyTownTeleop extends OpMode {
 
-    // Declare OpMode members.
+    // === Declare OpMode Members ===
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private DcMotor intake = null;
+    private CRServo leftPlowServo = null;
+    private CRServo rightPlowServo = null;
     private IMU imu = null;
 
     public final int LAUNCHER_TARGET_VELOCITY = 1165; //2496 RPM
@@ -36,6 +38,24 @@ public class Team37244StuyTownTeleop extends OpMode {
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
+
+    // === MOTOR POWER CONSTANTS ===
+    final double INTAKE_POWER = 1;
+    final double OUTTAKE_POWER = -1;
+    final double PLOW_DEPLOYING_POWER = 1;
+    final double PLOW_DEPLOY_HOLD_POWER = 0.1;
+    final double PLOW_STOWING_POWER = -1;
+    final double PLOW_STOW_HOLD_POWER = -0.1;
+
+    // === STATES ===
+    private enum PlowState {
+        STOWING,
+        DEPLOYING,
+        STOW_HOLD,
+        DEPLOY_HOLD
+    }
+
+    private PlowState currentPlowState = PlowState.STOWING;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -52,6 +72,9 @@ public class Team37244StuyTownTeleop extends OpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        leftPlowServo = hardwareMap.get(CRServo.class, "left_plow");
+        rightPlowServo = hardwareMap.get(CRServo.class, "right_plow");
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -74,10 +97,22 @@ public class Team37244StuyTownTeleop extends OpMode {
         rightFrontDrive.setZeroPowerBehavior(BRAKE);
         leftBackDrive.setZeroPowerBehavior(BRAKE);
         rightBackDrive.setZeroPowerBehavior(BRAKE);
+        // Intake as well
+        intake.setZeroPowerBehavior(BRAKE);
+
+        /*
+         * set Plow servos to an initial value to initialize the servo controller
+         */
+        leftPlowServo.setPower(0);
+        rightPlowServo.setPower(0);
+
+        // Plow Servo Directions: Positive Power is Deploy, Negative is Stow
+        leftPlowServo.setDirection(CRServo.Direction.FORWARD);
+        rightPlowServo.setDirection(CRServo.Direction.REVERSE);
 
         // Retrieve the IMU from the hardware map
         imu = hardwareMap.get(IMU.class, "imu");
-        // Adjust the orientation parameters to match your robot
+        // Orientation parameters should match Control Hub on robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
@@ -109,6 +144,7 @@ public class Team37244StuyTownTeleop extends OpMode {
      */
     @Override
     public void loop() {
+        // === DRIVING ===
         // Reset imu Yaw if collision or disconnection causes imu error
         if (gamepad1.options) {
             imu.resetYaw();
@@ -117,6 +153,10 @@ public class Team37244StuyTownTeleop extends OpMode {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
         fieldCentricDrive(-gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, botHeading);
+
+        // === OTHER ===
+        runIntake(gamepad1.right_bumper);
+        runPlow(gamepad1.circle, gamepad1.triangle);
 
         /*
          * Show motor powers on the Driver Station via telemetry.
@@ -132,6 +172,55 @@ public class Team37244StuyTownTeleop extends OpMode {
     public void stop() {
     }
 
+    /**
+     * Handles all intake logic
+     * @param intakeButtonPressed if button to intake is pressed
+     */
+    void runIntake(boolean intakeButtonPressed) {
+        if (intakeButtonPressed) {
+            intake.setPower(INTAKE_POWER);
+        }
+    }
+
+    /**
+     * Handles all plow logic and decide on power to give plow servos
+     * @param deployButtonPressed if button for deploy plow is pressed
+     * @param retractButtonPressed if button for stow plow is pressed
+     */
+    void runPlow(boolean deployButtonPressed, boolean retractButtonPressed) {
+        // Change State
+        if (deployButtonPressed) {
+            currentPlowState = PlowState.STOWING;
+        } else if (retractButtonPressed) {
+            currentPlowState = PlowState.DEPLOYING;
+        } else if (currentPlowState == PlowState.DEPLOYING) {
+            // If button not pressed, switch to lower power hold
+            currentPlowState = PlowState.DEPLOY_HOLD;
+        } else if (currentPlowState == PlowState.STOWING) {
+            // If button not pressed, switch to lower power hold
+            currentPlowState = PlowState.STOW_HOLD;
+        }
+
+        // Set Power
+        switch (currentPlowState) {
+            case DEPLOYING:
+                leftPlowServo.setPower(PLOW_DEPLOYING_POWER);
+                rightPlowServo.setPower(PLOW_DEPLOYING_POWER);
+                break;
+            case DEPLOY_HOLD:
+                leftPlowServo.setPower(PLOW_DEPLOY_HOLD_POWER);
+                rightPlowServo.setPower(PLOW_DEPLOY_HOLD_POWER);
+                break;
+            case STOWING:
+                leftPlowServo.setPower(PLOW_STOWING_POWER);
+                rightPlowServo.setPower(PLOW_STOWING_POWER);
+                break;
+            case STOW_HOLD:
+                leftPlowServo.setPower(PLOW_STOW_HOLD_POWER);
+                rightPlowServo.setPower(PLOW_STOW_HOLD_POWER);
+                break;
+        }
+    }
     void fieldCentricDrive(double x, double y, double rx, double botHeading) {
         // We rotate the left joystick vector <x, y> by botHeading
         // Then we pass in this new rotated vector to robotCentricDrive,
