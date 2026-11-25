@@ -34,7 +34,6 @@ public class Team37244GardenAuto extends LinearOpMode {
         LOADING_ZONE_PARK,
         COMPLETE
     }
-
     private AutoState currentState = AutoState.DRIVE_FORWARD;
 
     @Override
@@ -66,6 +65,8 @@ public class Team37244GardenAuto extends LinearOpMode {
             if (autoTimer.seconds() >= AUTO_TIMEOUT_SECONDS) {
                 currentState = AutoState.COMPLETE;
             }
+
+            robot.runIntake();
 
             switch (currentState) {
                 case DRIVE_FORWARD:

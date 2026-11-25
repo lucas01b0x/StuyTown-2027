@@ -46,7 +46,7 @@ public class Team37244Robot {
     final double PLOW_STOW_HOLD_POWER = -0.1;
 
     // === STATES ===
-    private enum PlowState {
+    public enum PlowState {
         STOWING,
         DEPLOYING,
         STOW_HOLD,
@@ -55,12 +55,12 @@ public class Team37244Robot {
     }
     private PlowState currentPlowState = PlowState.STOWING;
 
-    private enum IntakeState {
+    public enum IntakeState {
         INTAKING,
         OUTTAKING,
         STOP
     }
-    private IntakeState currentIntakeState = IntakeState.INTAKING;
+    private IntakeState currentIntakeState = IntakeState.STOP;
 
     /**
      * Initialize robot. Should be called in init() of OpMode class
@@ -125,19 +125,9 @@ public class Team37244Robot {
     }
 
     /**
-     * Handles all intake logic
-     * @param intakeButtonPressed if button to intake is pressed
+     * Runs intake based on state
      */
-    public void runIntake(boolean intakeButtonPressed, boolean outtakeButtonPressed) {
-        // Change State
-        if (intakeButtonPressed) {
-            currentIntakeState = IntakeState.INTAKING;
-        } else if (outtakeButtonPressed) {
-            currentIntakeState = IntakeState.OUTTAKING;
-        } else {
-            currentIntakeState = IntakeState.STOP;
-        }
-
+    public void runIntake() {
         // Set Power
         switch (currentIntakeState) {
             case INTAKING:
@@ -153,24 +143,9 @@ public class Team37244Robot {
     }
 
     /**
-     * Handles all plow logic and decide on power to give plow servos
-     * @param deployButtonPressed if button for deploy plow is pressed
-     * @param retractButtonPressed if button for stow plow is pressed
+     * Runs plow based on state
      */
-    public void runPlow(boolean deployButtonPressed, boolean retractButtonPressed) {
-        // Change State
-        if (deployButtonPressed) {
-            currentPlowState = PlowState.STOWING;
-        } else if (retractButtonPressed) {
-            currentPlowState = PlowState.DEPLOYING;
-        } else if (currentPlowState == PlowState.DEPLOYING) {
-            // If button not pressed, switch to lower power hold
-            currentPlowState = PlowState.DEPLOY_HOLD;
-        } else if (currentPlowState == PlowState.STOWING) {
-            // If button not pressed, switch to lower power hold
-            currentPlowState = PlowState.STOW_HOLD;
-        }
-
+    public void runPlow() {
         // Set Power
         switch (currentPlowState) {
             case DEPLOYING:
@@ -285,7 +260,15 @@ public class Team37244Robot {
         return rightBackDrivePower;
     }
 
-    public String getCurrentIntakeState() {
+    public void setCurrentIntakeState(IntakeState state) {
+        currentIntakeState = state;
+    }
+
+    public IntakeState getCurrentIntakeState() {
+        return currentIntakeState;
+    }
+
+    public String getCurrentIntakeStateAsString() {
         switch (currentIntakeState) {
             case INTAKING:
                 return "INTAKING";
@@ -298,7 +281,15 @@ public class Team37244Robot {
         }
     }
 
-    public String getCurrentPlowState() {
+    public void setCurrentPlowState(PlowState state) {
+        currentPlowState = state;
+    }
+
+    public PlowState getCurrentPlowState() {
+        return currentPlowState;
+    }
+
+    public String getCurrentPlowStateAsString() {
         switch (currentPlowState) {
             case DEPLOYING:
                 return "DEPLOYING";
@@ -313,7 +304,6 @@ public class Team37244Robot {
             default:
                 return "UNKNOWN";
         }
-
     }
 
     public double getIMUYaw() {

@@ -1,17 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name = "Team37244StuyTownTeleop", group = "Testing")
 public class Team37244StuyTownTeleop extends OpMode {
@@ -62,16 +52,38 @@ public class Team37244StuyTownTeleop extends OpMode {
 
         robot.fieldCentricDrive(-gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
 
-        // === OTHER ===
-        robot.runIntake(gamepad1.right_bumper, gamepad1.right_trigger_pressed);
-        robot.runPlow(gamepad1.triangle, gamepad1.x);
+        // === PLOW ===
+        // Change State
+        if (gamepad1.triangle) {
+            robot.setCurrentPlowState(Team37244Robot.PlowState.STOWING);
+        } else if (gamepad1.x) {
+            robot.setCurrentPlowState(Team37244Robot.PlowState.DEPLOYING);
+        } else if (robot.getCurrentPlowState() == Team37244Robot.PlowState.DEPLOYING) {
+            // If button not pressed, switch to lower power hold
+            robot.setCurrentPlowState(Team37244Robot.PlowState.DEPLOY_HOLD);
+        } else if (robot.getCurrentPlowState() == Team37244Robot.PlowState.STOWING) {
+            // If button not pressed, switch to lower power hold
+            robot.setCurrentPlowState(Team37244Robot.PlowState.STOW_HOLD);
+        }
+        robot.runPlow();
+
+        // === INTAKE ===
+        // Change State
+        if (gamepad1.right_bumper) {
+            robot.setCurrentIntakeState(Team37244Robot.IntakeState.INTAKING);
+        } else if (gamepad1.right_trigger_pressed) {
+            robot.setCurrentIntakeState(Team37244Robot.IntakeState.OUTTAKING);
+        } else {
+            robot.setCurrentIntakeState(Team37244Robot.IntakeState.STOP);
+        }
+        robot.runIntake();
 
         // === DRIVER STATION TELEMETRY INFO ===
         telemetry.addData("Front Drive", "left font (%.2f), right font (%.2f)", robot.getLeftFrontDrivePower(), robot.getRightFrontDrivePower());
         telemetry.addData("Back Drive", "left back (%.2f), right back (%.2f)", robot.getLeftBackDrivePower(), robot.getRightBackDrivePower());
         telemetry.addData("IMU Yaw", "robot yaw (%.2f)", robot.getIMUYaw());
-        telemetry.addData("Plow State", "robot yaw (%s)", robot.getCurrentPlowState());
-        telemetry.addData("Intake State", "robot yaw (%s)", robot.getCurrentIntakeState());
+        telemetry.addData("Plow State", "robot yaw (%s)", robot.getCurrentPlowStateAsString());
+        telemetry.addData("Intake State", "robot yaw (%s)", robot.getCurrentIntakeStateAsString());
     }
 
     /*
